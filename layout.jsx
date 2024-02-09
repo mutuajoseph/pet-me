@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Box,
   Button,
   ButtonGroup,
@@ -20,6 +21,7 @@ import {
   Text,
   useColorMode,
   useDisclosure,
+  WrapItem,
 } from "@chakra-ui/react";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 import PropTypes from "prop-types";
@@ -27,6 +29,8 @@ import { useState } from "react";
 import { Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
+import { useStore } from "./src/hooks/usePetStore";
+import {user} from './src/utils/userDataStub'
 
 const loginInitialValues = {
   email: "",
@@ -38,7 +42,7 @@ const registerInitialValues = {
   lastName: "",
   email: "",
   password: "",
-}
+};
 
 const loginValidationSchema = Yup.object().shape({
   email: Yup.string()
@@ -58,14 +62,15 @@ const registerValidationSchema = Yup.object().shape({
   password: Yup.string()
     .min(8, "Password must be at least 8 characters") // Minimum length
     .required("Password is required"),
-})
+});
 
 const AppLayout = ({ children }) => {
   const { colorMode, toggleColorMode } = useColorMode();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isActive, setIsActive] = useState("");
-  const [loading, setLoading] = useState(false)
-  const navigate = useNavigate()
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const isAuthenticated = useStore((state) => state.isAuthenticated);
 
   const handleAuthModalClick = (authMode) => {
     setIsActive(authMode);
@@ -73,15 +78,15 @@ const AppLayout = ({ children }) => {
   };
 
   const handleSubmitLogin = (loginDetails) => {
-    setLoading(true)
-    console.log(loginDetails)
-    setLoading(false)
-  }
+    setLoading(true);
+    console.log(loginDetails);
+    setLoading(false);
+  };
   const handleSubmitRegister = (registerDetails) => {
-    setLoading(true)
-    console.log(registerDetails)
-    setLoading(false)
-  }
+    setLoading(true);
+    console.log(registerDetails);
+    setLoading(false);
+  };
 
   return (
     <div>
@@ -101,151 +106,171 @@ const AppLayout = ({ children }) => {
           <ModalCloseButton />
           <ModalBody>
             <Formik
-              initialValues={ isActive === "login" ? loginInitialValues : registerInitialValues}
-              validationSchema={ isActive === "login" ? loginValidationSchema : registerValidationSchema}
-              onSubmit={isActive === "login" ? handleSubmitLogin : handleSubmitRegister}
-            >
-              {
-                isActive === "login" ? <Form>
-                <Stack direction="column" spacing={8}>
-                  <Field name="email">
-                    {({ field, form }) => (
-                      <FormControl
-                        isInvalid={form.errors.email && form.touched.email}
-                      >
-                        <FormLabel>Email address</FormLabel>
-                        <Input {...field} type="email" id="email" />
-                        <FormErrorMessage>
-                          {form.errors.email &&
-                            form.touched.email &&
-                            form.errors.email}
-                        </FormErrorMessage>
-                      </FormControl>
-                    )}
-                  </Field>
-
-                  <Field name="password">
-                    {({ field, form }) => (
-                      <FormControl
-                        isInvalid={
-                          form.errors.password && form.touched.password
-                        }
-                      >
-                        <FormLabel>Password</FormLabel>
-                        <Input {...field} type="password" id="password" />
-                        <FormErrorMessage>
-                          {form.errors.password &&
-                            form.touched.password &&
-                            form.errors.password}
-                        </FormErrorMessage>
-                      </FormControl>
-                    )}
-                  </Field>
-                  <Stack direction="row" spacing={4}>
-                    <Button width="70%" colorScheme="teal" variant="outline">
-                      Forgot Password
-                    </Button>
-                    <Button
-                      width="30%"
-                      colorScheme="teal"
-                      variant="solid"
-                      type="submit"
-                    >
-                      {loading ? <Spinner size="md" /> : <Text>Login</Text>}
-                    </Button>
-                  </Stack>
-                </Stack>
-              </Form> : 
-              <Form>
-              <Stack direction="column" spacing={8}>
-              <Field name="firstName">
-                  {({ field, form }) => (
-                    <FormControl
-                      isInvalid={form.errors.firstName && form.touched.firstName}
-                    >
-                      <FormLabel>First Name</FormLabel>
-                      <Input {...field} type="text" id="firstName" />
-                      <FormErrorMessage>
-                        {form.errors.firstName &&
-                          form.touched.firstName &&
-                          form.errors.firstName}
-                      </FormErrorMessage>
-                    </FormControl>
-                  )}
-                </Field>
-
-                <Field name="lastName">
-                  {({ field, form }) => (
-                    <FormControl
-                      isInvalid={form.errors.lastName && form.touched.lastName}
-                    >
-                      <FormLabel>Last Name</FormLabel>
-                      <Input {...field} type="text" id="lastName" />
-                      <FormErrorMessage>
-                        {form.errors.lastName &&
-                          form.touched.lastName &&
-                          form.errors.lastName}
-                      </FormErrorMessage>
-                    </FormControl>
-                  )}
-                </Field>
-
-                <Field name="email">
-                  {({ field, form }) => (
-                    <FormControl
-                      isInvalid={form.errors.email && form.touched.email}
-                    >
-                      <FormLabel>Email address</FormLabel>
-                      <Input {...field} type="email" id="email" />
-                      <FormErrorMessage>
-                        {form.errors.email &&
-                          form.touched.email &&
-                          form.errors.email}
-                      </FormErrorMessage>
-                    </FormControl>
-                  )}
-                </Field>
-
-                <Field name="password">
-                  {({ field, form }) => (
-                    <FormControl
-                      isInvalid={
-                        form.errors.password && form.touched.password
-                      }
-                    >
-                      <FormLabel>Password</FormLabel>
-                      <Input {...field} type="password" id="password" />
-                      <FormErrorMessage>
-                        {form.errors.password &&
-                          form.touched.password &&
-                          form.errors.password}
-                      </FormErrorMessage>
-                    </FormControl>
-                  )}
-                </Field>
-                <Stack direction="row" spacing={4}>
-
-                  {isActive === "login" ?  <Button width="70%" colorScheme="teal" variant="outline">
-                    Forgot Password
-                  </Button>: <></>}
-                 
-                  <Button
-                    width={isActive === "login" ? "30%" : "100%" }
-                    colorScheme="teal"
-                    variant="solid"
-                    type="submit"
-                  >
-                    {loading ? <Spinner size="md" /> : <Text>Login</Text>}
-                  </Button>
-                </Stack>
-              </Stack>
-            </Form>
+              initialValues={
+                isActive === "login"
+                  ? loginInitialValues
+                  : registerInitialValues
               }
+              validationSchema={
+                isActive === "login"
+                  ? loginValidationSchema
+                  : registerValidationSchema
+              }
+              onSubmit={
+                isActive === "login" ? handleSubmitLogin : handleSubmitRegister
+              }
+            >
+              {isActive === "login" ? (
+                <Form>
+                  <Stack direction="column" spacing={8}>
+                    <Field name="email">
+                      {({ field, form }) => (
+                        <FormControl
+                          isInvalid={form.errors.email && form.touched.email}
+                        >
+                          <FormLabel>Email address</FormLabel>
+                          <Input {...field} type="email" id="email" />
+                          <FormErrorMessage>
+                            {form.errors.email &&
+                              form.touched.email &&
+                              form.errors.email}
+                          </FormErrorMessage>
+                        </FormControl>
+                      )}
+                    </Field>
+
+                    <Field name="password">
+                      {({ field, form }) => (
+                        <FormControl
+                          isInvalid={
+                            form.errors.password && form.touched.password
+                          }
+                        >
+                          <FormLabel>Password</FormLabel>
+                          <Input {...field} type="password" id="password" />
+                          <FormErrorMessage>
+                            {form.errors.password &&
+                              form.touched.password &&
+                              form.errors.password}
+                          </FormErrorMessage>
+                        </FormControl>
+                      )}
+                    </Field>
+                    <Stack direction="row" spacing={4}>
+                      <Button width="70%" colorScheme="teal" variant="outline">
+                        Forgot Password
+                      </Button>
+                      <Button
+                        width="30%"
+                        colorScheme="teal"
+                        variant="solid"
+                        type="submit"
+                      >
+                        {loading ? <Spinner size="md" /> : <Text>Login</Text>}
+                      </Button>
+                    </Stack>
+                  </Stack>
+                </Form>
+              ) : (
+                <Form>
+                  <Stack direction="column" spacing={8}>
+                    <Field name="firstName">
+                      {({ field, form }) => (
+                        <FormControl
+                          isInvalid={
+                            form.errors.firstName && form.touched.firstName
+                          }
+                        >
+                          <FormLabel>First Name</FormLabel>
+                          <Input {...field} type="text" id="firstName" />
+                          <FormErrorMessage>
+                            {form.errors.firstName &&
+                              form.touched.firstName &&
+                              form.errors.firstName}
+                          </FormErrorMessage>
+                        </FormControl>
+                      )}
+                    </Field>
+
+                    <Field name="lastName">
+                      {({ field, form }) => (
+                        <FormControl
+                          isInvalid={
+                            form.errors.lastName && form.touched.lastName
+                          }
+                        >
+                          <FormLabel>Last Name</FormLabel>
+                          <Input {...field} type="text" id="lastName" />
+                          <FormErrorMessage>
+                            {form.errors.lastName &&
+                              form.touched.lastName &&
+                              form.errors.lastName}
+                          </FormErrorMessage>
+                        </FormControl>
+                      )}
+                    </Field>
+
+                    <Field name="email">
+                      {({ field, form }) => (
+                        <FormControl
+                          isInvalid={form.errors.email && form.touched.email}
+                        >
+                          <FormLabel>Email address</FormLabel>
+                          <Input {...field} type="email" id="email" />
+                          <FormErrorMessage>
+                            {form.errors.email &&
+                              form.touched.email &&
+                              form.errors.email}
+                          </FormErrorMessage>
+                        </FormControl>
+                      )}
+                    </Field>
+
+                    <Field name="password">
+                      {({ field, form }) => (
+                        <FormControl
+                          isInvalid={
+                            form.errors.password && form.touched.password
+                          }
+                        >
+                          <FormLabel>Password</FormLabel>
+                          <Input {...field} type="password" id="password" />
+                          <FormErrorMessage>
+                            {form.errors.password &&
+                              form.touched.password &&
+                              form.errors.password}
+                          </FormErrorMessage>
+                        </FormControl>
+                      )}
+                    </Field>
+                    <Stack direction="row" spacing={4}>
+                      {isActive === "login" ? (
+                        <Button
+                          width="70%"
+                          colorScheme="teal"
+                          variant="outline"
+                        >
+                          Forgot Password
+                        </Button>
+                      ) : (
+                        <></>
+                      )}
+
+                      <Button
+                        width={isActive === "login" ? "30%" : "100%"}
+                        colorScheme="teal"
+                        variant="solid"
+                        type="submit"
+                      >
+                        {loading ? <Spinner size="md" /> : <Text>Login</Text>}
+                      </Button>
+                    </Stack>
+                  </Stack>
+                </Form>
+              )}
             </Formik>
           </ModalBody>
-          <ModalFooter>
-          
-          </ModalFooter>
+          <ModalFooter></ModalFooter>
         </ModalContent>
       </Modal>
 
@@ -263,11 +288,34 @@ const AppLayout = ({ children }) => {
 
         <Spacer />
         <ButtonGroup gap="2" p="4">
-          <Button colorScheme={"green"} onClick={() => navigate('/cart')}>My Cart</Button>
-          <Button onClick={() => handleAuthModalClick("login")}>Login</Button>
-          <Button onClick={() => handleAuthModalClick("sign-up")}>
-            Sign Up
+          <Button colorScheme={"green"} onClick={() => navigate("/cart")}>
+            My Cart
           </Button>
+
+          {!isAuthenticated ? (
+            <>
+              <Button onClick={() => handleAuthModalClick("login")}>
+                Login
+              </Button>
+              <Button onClick={() => handleAuthModalClick("sign-up")}>
+                Sign Up
+              </Button>
+            </>
+          ) : (
+            <Flex gap={'3'}>
+              <WrapItem>
+                <Avatar name="Dan Abrahmov" src="https://bit.ly/dan-abramov" />
+              </WrapItem>
+
+              <Box>
+              <Text fontWeight={'bold'}>{user.email}</Text>
+              <Text fontWeight={'bold'}>{user.name}</Text>
+              </Box>
+              
+
+            </Flex>
+          )}
+
           <Button onClick={toggleColorMode}>
             {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
           </Button>

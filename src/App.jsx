@@ -16,7 +16,7 @@ function App() {
           </Box>
           } />
 
-          <Route path="/pets/:id" element={
+          <Route path="/pets/:name" element={
             <Box h={'100vh'}>
             <SinglePet />
           </Box>
